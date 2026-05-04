@@ -41,30 +41,22 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ==========================================
-            1. GIAO DIỆN CLIENT (HỌC VIÊN)
-            Sử dụng chung ClientLayout (Header nền tối + Footer)
-        ========================================== */}
+        {/* 1. GIAO DIỆN CLIENT */}
         <Route element={<ClientLayout />}>
-          {/* Trang chủ mặc định khi vào web */}
           <Route path="/" element={<HomePage />} />
-
-          {/* Trang hồ sơ cá nhân */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/courses" element={<ClientCourseList />} />
-          {/* Ghi chú: Sau này bạn thêm route giỏ hàng, chi tiết khóa học ở đây */}
-          {/* <Route path="/courses" element={<ClientCourseList />} /> */}
         </Route>
 
-        {/* ==========================================
-            2. GIAO DIỆN ADMIN (QUẢN TRỊ VIÊN)
-            Sử dụng chung AdminLayout (Sidebar + Header sáng)
-        ========================================== */}
+        {/* 2. CÁC TRANG XÁC THỰC (Độc lập, không nằm trong Admin hay Client) */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/access-deny" element={<AccessDenied />} />
+
+        {/* 3. GIAO DIỆN ADMIN */}
         <Route path="/admin" element={<AdminLayout />}>
-          {/* Trang chủ Admin */}
           <Route index element={<Dashboard />} />
 
-          {/* Nhóm quản lý Khóa học */}
           <Route path="course">
             <Route index element={<CourseList />} />
             <Route path="create" element={<CourseCreate />} />
@@ -73,7 +65,6 @@ function App() {
             <Route path="delete/:id" element={<CourseDelete />} />
           </Route>
 
-          {/* Nhóm quản lý Người dùng */}
           <Route path="user">
             <Route index element={<UserList />} />
             <Route path="create" element={<UserCreate />} />
@@ -82,15 +73,10 @@ function App() {
             <Route path="delete/:id" element={<UserDelete />} />
           </Route>
 
-          {/* Nhóm quản lý Đơn hàng */}
           <Route path="order">
             <Route index element={<OrderList />} />
             <Route path=":id" element={<OrderDetail />} />
           </Route>
-
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/access-deny" element={<AccessDenied />} />
         </Route>
       </Routes>
     </BrowserRouter>
