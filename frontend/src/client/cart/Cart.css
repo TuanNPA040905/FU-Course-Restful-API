@@ -1,0 +1,54 @@
+/* src/client/cart/Cart.css */
+
+.cart-container {
+  max-width: 800px;
+  margin: 100px auto 50px;
+  padding: 30px;
+  background: #0c1325;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #eef4ff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.cart-container h2 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  margin-bottom: 25px;
+  color: #63b3ed;
+}
+
+.cart-list {
+  list-style: none;
+  padding: 0;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cart-total {
+  margin: 20px 0;
+  text-align: right;
+  font-size: 1.2rem;
+}
+
+.btn-checkout {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  text-align: center;
+  background: #34d399;
+  color: #070c18;
+  font-weight: bold;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.btn-checkout:hover {
+  background: #10b981;
+  color: #fff;
+}
