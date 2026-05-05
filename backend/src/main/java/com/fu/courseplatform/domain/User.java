@@ -1,5 +1,7 @@
 package com.fu.courseplatform.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +30,9 @@ public class User {
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+    @JsonSerialize(using = InstantSerializer.class)
     private Instant createdAt;
+    @JsonSerialize(using = InstantSerializer.class)
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;

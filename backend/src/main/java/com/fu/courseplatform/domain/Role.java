@@ -1,6 +1,8 @@
 package com.fu.courseplatform.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +24,11 @@ public class Role {
     private long id;
     private String name;
     private String description;
+    @JsonSerialize(using = InstantSerializer.class)
+
     private Instant createdAt;
+    @JsonSerialize(using = InstantSerializer.class)
+
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
