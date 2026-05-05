@@ -126,4 +126,8 @@ public class UserService {
 
         return rs;
     }
+
+    public User handleGetUserByUsername(String email) {
+        return this.userRepository.findByEmail(email);
+    }
 }

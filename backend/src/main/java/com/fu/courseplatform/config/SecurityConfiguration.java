@@ -27,9 +27,10 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         authz -> authz
                                 .requestMatchers("/**").permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
 
                 )
+                .formLogin(f -> f.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                     //Cơ chế mặc định của thg Spring Security là statefull với session nên cần chuyển nó sang StateLEss
         return http.build();
