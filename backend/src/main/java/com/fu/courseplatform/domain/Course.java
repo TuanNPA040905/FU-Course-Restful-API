@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,7 +32,8 @@ public class Course {
     private String updatedBy;
     private Instant updatedAt;
 
-
+    @ManyToMany(mappedBy = "courses")
+    private List<Order> orders;
 
     @PrePersist
     public void handleBeforeCreate() {

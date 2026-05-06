@@ -32,8 +32,13 @@ public class Order {
     private String updatedBy;
     private String status;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
-    private List<Order_Course> orderCourses;
+    @ManyToMany
+    @JoinTable(
+            name = "order_course",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courses;
 
 
     @PrePersist

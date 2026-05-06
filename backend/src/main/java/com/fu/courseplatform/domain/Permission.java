@@ -1,7 +1,10 @@
 package com.fu.courseplatform.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "permissions")
@@ -18,9 +21,9 @@ public class Permission {
     private String apiPath;
     private String method;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @ManyToMany(mappedBy = "permissions")
+    @JsonIgnore
+    private List<Role> roles;
 
 
 }
