@@ -38,6 +38,10 @@ public class Role {
     @JsonIgnore
     List<User> users;
 
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<Permission> permissions;
+
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
