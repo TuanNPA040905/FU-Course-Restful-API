@@ -54,7 +54,7 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
 
         User currentUserDB = this.userService.handleGetUserByUsername(loginDTO.getUsername());
-        List<String> permissions = permissionRepository.findByRole(currentUserDB.getRole())
+        List<String> permissions = currentUserDB.getRole().getPermissions()
                 .stream().map(Permission::getName)
                 .collect(Collectors.toList()); //CREATE_COURSE", "DELETE_COURSE", "MANAGE_USER
 
@@ -104,8 +104,7 @@ public class AuthController {
         }
 
         //3. Load permissions mới từ DB
-        List<String> permissions = this.permissionRepository
-                .findByRole(user.getRole())
+        List<String> permissions = user.getRole().getPermissions()
                 .stream()
                 .map(Permission::getName)
                 .collect(Collectors.toList());

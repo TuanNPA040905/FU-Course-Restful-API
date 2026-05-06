@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,18 +32,21 @@ public class UserController {
 
     @PostMapping("/users")
     @ApiMessage("Create a user")
+    @PreAuthorize("hasAuthority('USER_CREATE')")
     public ResponseEntity<CreateUserDTO> handleCreateUser(@Valid @RequestBody CreateUserRequestDTO user) {
         if(this.userService.checkExistsEmail(user.getEmail())){
             throw new EmailAlreadyExistException("Email already exist");
         }
         String hashPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashPassword);
+        user.setActive(true);
         CreateUserDTO cDTO = this.userService.handleCreateAUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(cDTO);
     }
 
     @PutMapping("/users/{id}")
     @ApiMessage("Update a user")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<CreateUserDTO> handleUpdateUser(
             @PathVariable Long id,
             @RequestBody UpdateUserRequestDTO request) {
@@ -53,12 +57,14 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     @ApiMessage("Get a user by id")
+    @PreAuthorize("hasAuthority('USER_GET')")
     public ResponseEntity<User> handleGetUserById(@PathVariable Long id) {
         return ResponseEntity.ok(this.userService.findById(id));
     }
 
     @DeleteMapping("/users/{id}")
     @ApiMessage("Delete a user by id")
+    @PreAuthorize("hasAuthority('USERS_DELETE')")
     public ResponseEntity<Void> handleDeleteUserById(@PathVariable Long id) {
         this.userService.deleteById(id);
         return ResponseEntity.ok().body(null);
@@ -66,6 +72,7 @@ public class UserController {
 
     @GetMapping("/users")
     @ApiMessage("Get all users")
+    @PreAuthorize("hasAuthority('USERS_GET')")
     public ResponseEntity<ResultPaginationDTO> getAllUsers(
             @Filter Specification<User> spec,
             Pageable pageable
