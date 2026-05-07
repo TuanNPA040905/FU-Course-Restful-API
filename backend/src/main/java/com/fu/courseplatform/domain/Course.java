@@ -1,5 +1,6 @@
 package com.fu.courseplatform.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fu.courseplatform.util.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,17 +23,19 @@ public class Course {
     private long id;
     private String title;
     private String image;
+    private boolean active;
     private String shortName;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
     private float price;
-    private String semester;
+    private int semester;
     private Instant createdAt;
     private String createdBy;
     private String updatedBy;
     private Instant updatedAt;
 
     @ManyToMany(mappedBy = "courses")
+    @JsonIgnore
     private List<Order> orders;
 
     @PrePersist

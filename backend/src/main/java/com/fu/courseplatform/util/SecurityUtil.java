@@ -53,6 +53,7 @@ public class SecurityUtil {
                 .issuedAt(now)
                 .expiresAt(expiresAt)
 //                .claim("user", objectMapper.convertValue(res.getUser(), Map.class))
+                .subject(email)
                 .claim("user", res.getUser())
                 .claim("permission", permissions)
                 .build();
