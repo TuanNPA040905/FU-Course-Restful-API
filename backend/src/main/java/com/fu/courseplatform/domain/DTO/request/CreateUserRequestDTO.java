@@ -23,6 +23,7 @@ public class CreateUserRequestDTO {
         private String fullName;
         private String phone;
         private String address;
+        private String avatar;
         private boolean active;
         private String roleName; // nhận "USER", "MENTOR", "ADMIN"
 
