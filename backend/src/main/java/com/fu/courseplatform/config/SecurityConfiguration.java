@@ -4,6 +4,7 @@ import com.fu.courseplatform.util.SecurityUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +19,13 @@ import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -70,14 +75,31 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,CustomAuthenticationEntryPoint caep) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         authz -> authz
                                 .requestMatchers("/", "/api/v1/auth/login").permitAll()
                                 .anyRequest().authenticated())
-                                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                        .jwt(Customizer.withDefaults())
+                                        .bearerTokenResolver(request -> {
+                                            // Đọc từ Cookie trước
+                                            if (request.getCookies() != null) {
+                                                for (Cookie cookie : request.getCookies()) {
+                                                    if ("access_token".equals(cookie.getName())) {
+                                                        return cookie.getValue();
+                                                    }
+                                                }
+                                            }
+                                            // Fallback đọc từ Authorization header (dùng khi test Postman)
+                                            String authHeader = request.getHeader("Authorization");
+                                            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                                                return authHeader.substring(7);
+                                            }
+                                            return null;
+                                        })
                                         .authenticationEntryPoint(caep)
-
-                )
+                                )
                 .formLogin(f -> f.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                     //Cơ chế mặc định của thg Spring Security là statefull với session nên cần chuyển nó sang StateLEss
@@ -92,5 +114,18 @@ public class SecurityConfiguration {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // URL React
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true); // ✅ Bắt buộc để Cookie hoạt động
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

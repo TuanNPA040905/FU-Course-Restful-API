@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const UserUpdate = () => {
   const { id } = useParams();
@@ -18,18 +19,16 @@ const UserUpdate = () => {
   // Gọi API để load dữ liệu cũ lên form
   useEffect(() => {
     const fetchOldData = async () => {
-      try {
-        // --- MOCK DATA ---
-        setFormData({
-          email: "admin@test.com",
-          phone: "0123456789",
-          fullName: "System Admin Old",
-          address: "Hà Nội",
-          role: "ADMIN",
-        });
-      } catch (error) {
-        console.error(error);
-      }
+      // ← Thêm async
+      const response = await axiosInstance.get(`/api/v1/users/${id}`);
+      const user = response.data.data;
+      setFormData({
+        email: user.email,
+        phone: user.phone || "",
+        fullName: user.fullName,
+        address: user.address || "",
+        role: user.role.name,
+      });
     };
     fetchOldData();
   }, [id]);
@@ -44,8 +43,13 @@ const UserUpdate = () => {
       // Gửi data dưới dạng JSON thuần túy
       // await axios.put(`http://localhost:8080/api/admin/users/${id}`, formData);
 
-      console.log("Mock Update Success:", formData);
-      alert("Cập nhật người dùng thành công!");
+      await axiosInstance.put(`/api/v1/users/${id}`, {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        roleName: formData.role,
+      });
+      alert("Cập nhật thành công!");
       navigate("/admin/user");
     } catch (error) {
       if (error.response && error.response.data.errors) {
@@ -138,6 +142,7 @@ const UserUpdate = () => {
                 onChange={handleChange}
               >
                 <option value="ADMIN">ADMIN</option>
+                <option value="MENTOR">MENTOR</option>
                 <option value="USER">USER</option>
               </select>
             </div>

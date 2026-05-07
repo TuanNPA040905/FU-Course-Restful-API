@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const UserDetail = () => {
   const { id } = useParams();
@@ -9,17 +10,8 @@ const UserDetail = () => {
   useEffect(() => {
     const fetchUserDetail = async () => {
       try {
-        // Tương lai: const response = await axios.get(`http://localhost:8080/api/admin/users/${id}`);
-
-        // --- MOCK DATA ---
-        setUser({
-          id: id,
-          email: "admin@test.com",
-          fullName: "System Admin",
-          address: "Hà Nội, Việt Nam",
-          phone: "0123456789",
-          avatar: "default-avatar.jpg",
-        });
+        const response = await axiosInstance.get(`/api/v1/users/${id}`);
+        setUser(response.data.data);
       } catch (error) {
         console.error("Lỗi khi tải chi tiết người dùng:", error);
       }
@@ -76,6 +68,30 @@ const UserDetail = () => {
                 </li>
                 <li className="list-group-item">
                   <strong>Phone:</strong> {user.phone}
+                </li>
+                {/* ✅ Thêm role */}
+                <li className="list-group-item">
+                  <strong>Role:</strong>{" "}
+                  <span
+                    className={`badge ${
+                      user.role.name === "ADMIN"
+                        ? "bg-danger"
+                        : user.role.name === "MENTOR"
+                          ? "bg-warning"
+                          : "bg-secondary"
+                    }`}
+                  >
+                    {user.role.name}
+                  </span>
+                </li>
+                {/* ✅ Thêm trạng thái */}
+                <li className="list-group-item">
+                  <strong>Active:</strong>{" "}
+                  <span
+                    className={`badge ${user.active ? "bg-success" : "bg-danger"}`}
+                  >
+                    {user.active ? "Active" : "Inactive"}
+                  </span>
                 </li>
               </ul>
             </div>

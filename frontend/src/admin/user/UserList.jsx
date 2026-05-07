@@ -1,36 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        // Sau này đổi thành URL Spring Boot của bạn:
-        // const response = await axios.get(`http://localhost:8080/api/admin/users?name=${searchTerm}`);
+  // Thêm hàm này
+  const handleSearch = () => {
+    fetchUsers(searchTerm);
+  };
 
-        // --- DỮ LIỆU MẪU (MOCK DATA) ---
-        setUsers([
-          {
-            id: 1,
-            email: "admin@fptu.edu.vn",
-            fullName: "Admin FPTU",
-            role: { id: "ADMIN", name: "ADMIN" },
-          },
-          {
-            id: 2,
-            email: "student@fptu.edu.vn",
-            fullName: "Nguyễn Văn Sinh Viên",
-            role: { id: "USER", name: "USER" },
-          },
-        ]);
-        setLoading(false);
+  useEffect(() => {
+    const fetchUsers = async (name = "") => {
+      try {
+        const response = await axiosInstance.get("/api/v1/users", {
+          params: { name: name || undefined },
+        });
+        setUsers(response.data.data.result); // Lấy từ result
       } catch (error) {
-        console.error("Lỗi khi tải danh sách người dùng:", error);
+        console.error("Lỗi tải danh sách user:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -68,7 +60,10 @@ const UserList = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button className="btn btn-light border d-flex align-items-center gap-2">
+            <button
+              onClick={handleSearch}
+              className="btn btn-light border d-flex align-items-center gap-2"
+            >
               <i className="fas fa-filter"></i> Tìm kiếm
             </button>
           </div>
@@ -96,7 +91,13 @@ const UserList = () => {
                     <td>{user.fullName}</td>
                     <td>
                       <span
-                        className={`badge ${user.role.name === "ADMIN" ? "bg-danger" : "bg-secondary"}`}
+                        className={`badge ${
+                          user.role.name === "ADMIN"
+                            ? "bg-danger"
+                            : user.role.name === "MENTOR"
+                              ? "bg-warning"
+                              : "bg-secondary"
+                        }`}
                       >
                         {user.role.name}
                       </span>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const UserDelete = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const UserDelete = () => {
       // Tùy theo chuẩn REST của bạn, có thể là DELETE hoặc POST
       // await axios.delete(`http://localhost:8080/api/admin/users/${id}`);
 
-      console.log(`Đã xóa user ID: ${id}`);
+      await axiosInstance.delete(`/api/v1/users/${id}`);
       alert("Xóa người dùng thành công!");
       navigate("/admin/user");
     } catch (error) {

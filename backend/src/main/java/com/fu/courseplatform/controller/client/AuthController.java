@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +41,9 @@ public class AuthController {
 
     @Value("${fucourse.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+
+    @Value("${fucourse.jwt.access-token-validity-in-seconds}")
+    private long accessTokenExpiration;
 
     @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
@@ -76,16 +80,26 @@ public class AuthController {
         //set refresh token
         String refresh_token = this.securityUtil.createRefreshToken(authentication.getName(), res);
         this.userService.saveRefreshToken(authentication.getName(), refresh_token);
+        //Thê, accessToken vào cookie
+        ResponseCookie accessCookie = ResponseCookie
+                .from("access_token", access_token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(accessTokenExpiration)
+                .build();
+
         // set refreshToken vào cookie (HttpOnly)
-        ResponseCookie cookie = ResponseCookie
+        ResponseCookie refreshCookie = ResponseCookie
                 .from("refresh_token", refresh_token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(refreshTokenExpiration)
                 .build();
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(res);
     }
 
@@ -100,7 +114,10 @@ public class AuthController {
         //2. Check token khớp DB ko
         User user = this.userService.handleGetUserByUsername(refreshToken, email);
         if (user == null) {
-            throw new RuntimeException("Refresh token không hợp lệ");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Refresh token không hợp lệ"
+            );
         }
 
         //3. Load permissions mới từ DB
@@ -123,6 +140,17 @@ public class AuthController {
         res.setUser(resLogin);
         String newAccessToken = this.securityUtil.createAccessToken(email, res);
         res.setAccessToken(newAccessToken);
-        return ResponseEntity.ok().body(res);
+        // 6. ✅ Set Cookie access_token mới
+        ResponseCookie accessCookie = ResponseCookie
+                .from("access_token", newAccessToken)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(accessTokenExpiration)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .body(res);
     }
 }

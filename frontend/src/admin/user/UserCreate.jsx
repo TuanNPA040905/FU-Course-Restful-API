@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 
 const UserCreate = () => {
   const navigate = useNavigate();
@@ -39,17 +40,19 @@ const UserCreate = () => {
     if (avatarFile) submitData.append("avatarFile", avatarFile);
 
     try {
-      // const response = await axios.post('http://localhost:8080/api/admin/users', submitData, {
-      //   headers: { 'Content-Type': 'multipart/form-data' }
-      // });
-
-      console.log("Mock Submit Success!", formData);
+      await axiosInstance.post("/api/v1/users", {
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        roleName: formData.role,
+      });
       alert("Tạo người dùng thành công!");
       navigate("/admin/user");
     } catch (error) {
-      // Giả sử Spring Boot trả về mã 400 kèm danh sách lỗi
-      if (error.response && error.response.data.errors) {
-        setErrors(error.response.data.errors);
+      if (error.response?.status === 400) {
+        alert(error.response.data.message);
       }
     }
   };
@@ -153,6 +156,7 @@ const UserCreate = () => {
                 className="form-select"
               >
                 <option value="ADMIN">ADMIN</option>
+                <option value="MENTOR">MENTOR</option>
                 <option value="USER">USER</option>
               </select>
             </div>
