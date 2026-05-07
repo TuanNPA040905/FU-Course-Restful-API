@@ -41,6 +41,7 @@ public class UserService {
         user1.setPhone(user.getPhone());
         user1.setAddress(user.getAddress());
         user1.setActive(user.isActive());
+        user1.setAvatar(user.getAvatar());
         Role role = this.roleService.findByName(user.getRoleName());
         user1.setRole(role);
         User createUser = this.userRepository.save(user1);
@@ -56,6 +57,7 @@ public class UserService {
         createUserDTO.setPhone(createUser.getPhone());
         createUserDTO.setFullName(createUser.getFullName());
         createUserDTO.setAddress(createUser.getAddress());
+        createUserDTO.setAvatar(createUser.getAvatar());
         return createUserDTO;
     }
 
@@ -93,7 +95,7 @@ public class UserService {
     public void deleteById(Long id) {
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new IdInvalidException("User not found"));
-        this.userRepository.delete(user);
+        this.userRepository.deleteById(id);
     }
 
     public ResultPaginationDTO fetchAllUsers(Specification<User> spec, Pageable pageable) {

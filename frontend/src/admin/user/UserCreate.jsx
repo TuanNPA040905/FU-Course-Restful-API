@@ -31,23 +31,28 @@ const UserCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const multipartData = new FormData(); // ✅ Đổi tên biến để không đè lên state formData
 
-    // Gói dữ liệu vào FormData vì có chứa file ảnh
-    const submitData = new FormData();
-    Object.keys(formData).forEach((key) =>
-      submitData.append(key, formData[key]),
+    const userData = {
+      email: formData.email, // ✅ formData (state), không phải formState
+      password: formData.password,
+      fullName: formData.fullName,
+      phone: formData.phone,
+      address: formData.address,
+      roleName: formData.role,
+    };
+
+    multipartData.append(
+      "data",
+      new Blob([JSON.stringify(userData)], { type: "application/json" }),
     );
-    if (avatarFile) submitData.append("avatarFile", avatarFile);
+
+    if (avatarFile) {
+      multipartData.append("avatar", avatarFile);
+    }
 
     try {
-      await axiosInstance.post("/api/v1/users", {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        address: formData.address,
-        roleName: formData.role,
-      });
+      await axiosInstance.post("/api/v1/users", multipartData); // ✅ Bỏ headers
       alert("Tạo người dùng thành công!");
       navigate("/admin/user");
     } catch (error) {

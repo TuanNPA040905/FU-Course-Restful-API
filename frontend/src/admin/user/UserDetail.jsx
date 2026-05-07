@@ -45,11 +45,10 @@ const UserDetail = () => {
             <div className="card" style={{ width: "60%" }}>
               <div className="card-header fw-bold">User information</div>
 
-              {/* Giả định ảnh được lưu trong thư mục public/images/avatar/ của React */}
               <img
                 className="card-img-top"
                 style={{ width: "250px", padding: "15px" }}
-                src={`/images/avatar/${user.avatar}`}
+                src={user.avatar || "/images/avatar/default.png"} // fallback nếu null
                 alt="User Avatar"
               />
 
