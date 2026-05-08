@@ -9,6 +9,7 @@ import com.fu.courseplatform.repository.CourseRepository;
 import com.fu.courseplatform.util.error.IdInvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -92,5 +93,13 @@ public class CourseService {
         rs.setResult(listCourse); // Gán danh sách DTO sạch sẽ vào đây
 
         return rs;
+    }
+
+    public List<Course> findHotCourses(int limit) {
+        return this.courseRepository.findHotCourses(PageRequest.of(0, limit));
+    }
+
+    public List<Course> findFreeCourses(int limit) {
+        return this.courseRepository.findFreeCourses(PageRequest.of(0, limit));
     }
 }
