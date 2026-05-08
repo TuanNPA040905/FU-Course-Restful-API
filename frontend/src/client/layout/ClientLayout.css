@@ -200,7 +200,6 @@
   overflow: hidden;
   background: #070c18;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-  margin-top: 80px;
 }
 .fptu-footer-blob {
   position: absolute;
@@ -314,4 +313,11 @@
   gap: 6px;
   font-size: 0.78rem;
   color: #2d3f55;
+}
+
+.fptu-dd-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }

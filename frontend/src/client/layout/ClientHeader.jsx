@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosConfig";
 import "./ClientLayout.css";
 
 const ClientHeader = () => {
@@ -7,12 +8,11 @@ const ClientHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // Giả lập trạng thái đăng nhập (Bạn có thể đổi thành null để test trạng thái chưa đăng nhập)
-  const [user, setUser] = useState({
-    fullName: "Học viên FPT",
-    avatar: "https://via.placeholder.com/150",
-    role: "USER",
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
   });
+
   const cartCount = 2; // Giả lập số lượng trong giỏ hàng
 
   useEffect(() => {
@@ -26,6 +26,12 @@ const ClientHeader = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/courses?name=${searchTerm}`);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/login");
   };
 
   return (
@@ -100,9 +106,12 @@ const ClientHeader = () => {
                       >
                         <div className="fptu-avatar-ring">
                           <img
-                            src={user.avatar}
+                            src={user.avatar || "https://placehold.co/150"}
                             className="fptu-avatar-img"
                             alt="Avatar"
+                            onError={(e) => {
+                              e.target.src = "https://placehold.co/150";
+                            }}
                           />
                         </div>
                         <i className="fas fa-chevron-down fptu-caret ms-1"></i>
@@ -110,9 +119,12 @@ const ClientHeader = () => {
                       <ul className="dropdown-menu dropdown-menu-end fptu-dropdown-menu p-2">
                         <li className="fptu-dropdown-user">
                           <img
-                            src={user.avatar}
+                            src={user.avatar || "https://placehold.co/150"}
                             className="fptu-dd-avatar"
                             alt="Avatar"
+                            onError={(e) => {
+                              e.target.src = "https://placehold.co/150";
+                            }}
                           />
                           <div className="fptu-dd-name">{user.fullName}</div>
                         </li>
@@ -137,7 +149,7 @@ const ClientHeader = () => {
                             tôi
                           </Link>
                         </li>
-                        {user.role === "ADMIN" && (
+                        {user.role?.name === "ADMIN" && (
                           <li>
                             <Link
                               className="dropdown-item fptu-dd-item"
@@ -153,7 +165,7 @@ const ClientHeader = () => {
                         <li>
                           <button
                             className="dropdown-item fptu-dd-item fptu-logout"
-                            onClick={() => alert("Đăng xuất")}
+                            onClick={handleLogout}
                           >
                             <i className="fas fa-sign-out-alt"></i> Đăng xuất
                           </button>

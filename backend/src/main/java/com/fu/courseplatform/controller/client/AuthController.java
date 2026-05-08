@@ -7,6 +7,8 @@ import com.fu.courseplatform.domain.User;
 import com.fu.courseplatform.repository.PermissionRepository;
 import com.fu.courseplatform.service.UserService;
 import com.fu.courseplatform.util.SecurityUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -71,6 +73,7 @@ public class AuthController {
                     roleDTO.setId(currentUserDB.getRole().getId());
                     roleDTO.setName(currentUserDB.getRole().getName());
                     userLogin.setRole(roleDTO);
+                    userLogin.setAvatar(currentUserDB.getAvatar());
                     userLogin.setPermissions(permissions);
             res.setUser(userLogin);
         }
@@ -152,5 +155,21 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .body(res);
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        Cookie accessCookie = new Cookie("access_token", null);
+        accessCookie.setMaxAge(0);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+        return ResponseEntity.ok().build();
     }
 }

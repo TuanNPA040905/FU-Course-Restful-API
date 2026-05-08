@@ -23,6 +23,7 @@ public class ResLoginDTO {
         private String email;
         private String name;
         private RoleDTO role;
+        private String avatar;
         private List<String> permissions;
 
         @Data

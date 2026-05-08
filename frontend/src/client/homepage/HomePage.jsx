@@ -5,62 +5,47 @@ import "./HomePage.css";
 const HomePage = () => {
   const [hotCourses, setHotCourses] = useState([]);
   const [freeCourses, setFreeCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Mock Data: Chờ kết nối Spring Boot
-    setHotCourses([
-      {
-        id: 1,
-        title: "Lập trình ReactJS Thực Chiến",
-        describe_details:
-          "Học ReactJS từ cơ bản đến nâng cao xây dựng ứng dụng thực tế.",
-        price: 1500000,
-        image: "https://via.placeholder.com/400x250?text=ReactJS",
-      },
-      {
-        id: 2,
-        title: "Spring Boot cho người mới bắt đầu",
-        describe_details: "Làm chủ Backend API với Java Spring Boot.",
-        price: 2000000,
-        image: "https://via.placeholder.com/400x250?text=Spring+Boot",
-      },
-      {
-        id: 3,
-        title: "Làm chủ Cấu trúc dữ liệu & Giải thuật",
-        describe_details: "Vượt qua mọi bài phỏng vấn thuật toán dễ dàng.",
-        price: 990000,
-        image: "https://via.placeholder.com/400x250?text=DSA",
-      },
-      {
-        id: 4,
-        title: "Tiếng Anh IT",
-        describe_details:
-          "Tiếng Anh chuyên ngành dành riêng cho lập trình viên.",
-        price: 500000,
-        image: "https://via.placeholder.com/400x250?text=English+IT",
-      },
-    ]);
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch("/api/v1/home");
+        if (!res.ok) throw new Error("Lỗi fetch");
+        const json = await res.json();
 
-    setFreeCourses([
-      {
-        id: 5,
-        title: "Nhập môn Lập trình C",
-        describe_details: "Khóa học nền tảng bắt buộc cho mọi Developer.",
-        price: 0,
-        image: "https://via.placeholder.com/400x250?text=C+Programming",
-      },
-      {
-        id: 6,
-        title: "HTML & CSS Cơ bản",
-        describe_details: "Tự tay cắt HTML giao diện website cực đẹp.",
-        price: 0,
-        image: "https://via.placeholder.com/400x250?text=HTML+CSS",
-      },
-    ]);
+        setHotCourses(json.data.hotCourse);
+        setFreeCourses(json.data.freeCourse);
+      } catch (err) {
+        console.error("Lỗi tải khóa học:", err);
+        setError("Không thể tải khóa học. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
   }, []);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN").format(price) + "đ";
+
+  if (loading)
+    return (
+      <div className="empty-state">
+        <i className="fas fa-spinner fa-spin"></i>
+        <p>Đang tải...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="empty-state">
+        <i className="fas fa-exclamation-circle"></i>
+        <p>{error}</p>
+      </div>
+    );
 
   return (
     <div className="client-home-wrapper">
@@ -96,22 +81,21 @@ const HomePage = () => {
                 ></button>
               </div>
               <div className="carousel-inner">
-                {/* Lưu ý: Đổi ảnh ở đây thành ảnh thật trong folder public/images/carosel/ của bạn */}
                 <div className="carousel-item active">
                   <img
-                    src="https://via.placeholder.com/1200x420/0d1425/ffffff?text=Slide+Banner+1"
+                    src="https://res.cloudinary.com/dep1nnstf/image/upload/v1778231569/Carosel2_ihkxjz.jpg"
                     alt="Slide 1"
                   />
                 </div>
                 <div className="carousel-item">
                   <img
-                    src="https://via.placeholder.com/1200x420/1e3a8a/ffffff?text=Slide+Banner+2"
+                    src="https://res.cloudinary.com/dep1nnstf/image/upload/v1778231569/Carosel1_fpgsth.jpg"
                     alt="Slide 2"
                   />
                 </div>
                 <div className="carousel-item">
                   <img
-                    src="https://via.placeholder.com/1200x420/164e63/ffffff?text=Slide+Banner+3"
+                    src="https://res.cloudinary.com/dep1nnstf/image/upload/v1778231569/Carosel3_ncbhog.jpg"
                     alt="Slide 3"
                   />
                 </div>
@@ -164,7 +148,13 @@ const HomePage = () => {
                 >
                   <div className="course-card">
                     <div className="course-card-img">
-                      <img src={course.image} alt={course.title} />
+                      <img
+                        src={
+                          course.image ||
+                          `https://placehold.co/400x250?text=${encodeURIComponent(course.shortName || course.title)}`
+                        }
+                        alt={course.title}
+                      />
                       <div className="course-card-img-overlay"></div>
                       <span className="course-price-tag">
                         {formatPrice(course.price)}
@@ -177,9 +167,7 @@ const HomePage = () => {
                       >
                         <div className="course-card-title">{course.title}</div>
                       </Link>
-                      <p className="course-card-desc">
-                        {course.describe_details}
-                      </p>
+                      <p className="course-card-desc">{course.description}</p>
                     </div>
                     <div className="course-card-footer">
                       <button className="btn-add-cart">
@@ -221,7 +209,13 @@ const HomePage = () => {
                 >
                   <div className="course-card">
                     <div className="course-card-img">
-                      <img src={course.image} alt={course.title} />
+                      <img
+                        src={
+                          course.image ||
+                          `https://via.placeholder.com/400x250?text=${encodeURIComponent(course.shortName || course.title)}`
+                        }
+                        alt={course.title}
+                      />
                       <div className="course-card-img-overlay"></div>
                       <span className="free-badge">Miễn phí</span>
                       <span className="course-price-tag free-tag">0đ</span>
@@ -233,9 +227,7 @@ const HomePage = () => {
                       >
                         <div className="course-card-title">{course.title}</div>
                       </Link>
-                      <p className="course-card-desc">
-                        {course.describe_details}
-                      </p>
+                      <p className="course-card-desc">{course.description}</p>
                     </div>
                     <div className="course-card-footer">
                       <button
