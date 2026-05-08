@@ -33,7 +33,7 @@ public class CourseService {
         c.setImage(createCourseDTO.getImage());
         c.setSemester(createCourseDTO.getSemester());
         c.setActive(createCourseDTO.isActive());
-
+        c.setShortName(createCourseDTO.getShortName());
         return this.courseRepository.save(c);
     }
 
@@ -54,6 +54,7 @@ public class CourseService {
         c.setDescription(createCourseDTO.getDescription());
         c.setPrice(createCourseDTO.getPrice());
         c.setImage(createCourseDTO.getImage());
+        c.setShortName(createCourseDTO.getShortName());
         c.setSemester(createCourseDTO.getSemester());
         c.setActive(createCourseDTO.isActive());
         return this.courseRepository.save(c);
@@ -80,6 +81,7 @@ public class CourseService {
             c.setImage(item.getImage());
             c.setSemester(item.getSemester());
             c.setActive(item.isActive());
+            c.setShortName(item.getShortName());
             c.setCreatedAt(item.getCreatedAt());
             c.setUpdatedAt(item.getUpdatedAt());
             c.setCreatedBy(item.getCreatedBy());

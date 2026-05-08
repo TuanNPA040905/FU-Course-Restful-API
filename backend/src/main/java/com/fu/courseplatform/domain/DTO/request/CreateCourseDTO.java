@@ -14,7 +14,7 @@ public class CreateCourseDTO {
     @NotBlank(message = "Title không được để trống")
     private String title;
     @NotBlank(message = "Name không được để trống")
-    private String short_name;
+    private String shortName;
     @NotBlank(message = "Description không được để trống")
     private String description;
     private float price;
