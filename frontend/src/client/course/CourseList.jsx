@@ -1,186 +1,283 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./CourseList.css";
 
+const PAGE_SIZE = 7;
+
 const CourseList = () => {
-  // Giả lập dữ liệu khóa học (Giống project cũ của bạn)
-  const [courses] = useState([
-    {
-      id: 1,
-      title: "Lập trình ReactJS Thực Chiến",
-      short_describe: "Nắm vững React trong 4 tuần",
-      describe_details:
-        "Khóa học từ cơ bản đến nâng cao, xây dựng project thực tế.",
-      price: 1500000,
-      image: "https://via.placeholder.com/300x200?text=ReactJS",
-    },
-    {
-      id: 2,
-      title: "Spring Boot Căn Bản",
-      short_describe: "Backend Java mạnh mẽ",
-      describe_details: "Tạo RESTful API chuẩn doanh nghiệp với Spring Boot 3.",
-      price: 0,
-      image: "https://via.placeholder.com/300x200?text=Spring+Boot",
-    },
-    {
-      id: 3,
-      title: "Toán Cao Cấp Rời Rạc",
-      short_describe: "Nền tảng cho lập trình",
-      describe_details:
-        "Vượt qua môn toán FPTU dễ dàng với phương pháp giải hay.",
-      price: 500000,
-      image: "https://via.placeholder.com/300x200?text=Math",
-    },
-  ]);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0); // Spring dùng page 0-based
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true);
+      try {
+        // Spring Pageable: ?page=0&size=7
+        const res = await fetch(
+          `/api/v1/client/courses?page=${currentPage}&size=${PAGE_SIZE}`,
+        );
+        if (!res.ok) throw new Error("Lỗi fetch");
+        const json = await res.json();
+
+        // ResultPaginationDTO thường có dạng:
+        // { data: { meta: { page, pageSize, pages, total }, result: [...] } }
+        const meta = json.data.meta;
+        const result = json.data.result || [];
+
+        setCourses(result);
+        setTotalPages(meta.pages);
+        setTotalElements(meta.total);
+      } catch (err) {
+        console.error("Lỗi tải khóa học:", err);
+        setError("Không thể tải khóa học. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, [currentPage]); // re-fetch mỗi khi đổi trang
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price);
 
   const handleAddToCart = (e, courseId) => {
-    e.preventDefault(); // Ngăn việc chuyển trang khi bấm nút giỏ hàng
+    e.preventDefault();
     e.stopPropagation();
     alert(`Đã thêm khóa học ID ${courseId} vào giỏ hàng!`);
   };
 
-  return (
-    <div className="course-list-page">
-      <div className="page-hero">
-        <div className="page-hero-eyebrow">
-          <i className="fas fa-graduation-cap"></i> Học viện FPTU
+  const goTo = (page) => {
+    if (page < 0 || page >= totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Tạo danh sách số trang hiển thị (sliding window 5 trang)
+  const buildPageNums = () => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i);
+    const pages = [];
+    const start = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
+    const end = Math.min(totalPages - 1, start + 4);
+    if (start > 0) pages.push(0, "...");
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < totalPages - 1) pages.push("...", totalPages - 1);
+    return pages;
+  };
+
+  if (loading)
+    return (
+      <div className="cl-page">
+        <div className="cl-state-center">
+          <div className="cl-spinner" />
+          <p>Đang tải khóa học...</p>
         </div>
-        <h1>
-          Khám phá <span>khóa học</span>
-          <br />
-          dành cho bạn
-        </h1>
-        <p>Tìm kiếm và lọc khóa học phù hợp với mục tiêu của bạn</p>
       </div>
+    );
 
-      <div className="layout-grid">
-        {/* BỘ LỌC TÌM KIẾM */}
-        <aside>
-          <div className="filter-panel">
-            <div className="filter-panel-header">
-              <i className="fas fa-sliders-h"></i> <span>Bộ lọc</span>
-            </div>
+  if (error)
+    return (
+      <div className="cl-page">
+        <div className="cl-state-center cl-state-error">
+          <i className="fas fa-exclamation-circle" />
+          <p>{error}</p>
+        </div>
+      </div>
+    );
 
-            <div className="filter-group">
-              <div className="filter-group-label">
-                <i className="fas fa-circle"></i> Danh mục
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="cat-se" />
-                <label htmlFor="cat-se">Kĩ thuật phần mềm</label>
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="cat-math" />
-                <label htmlFor="cat-math">Toán cao cấp</label>
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="cat-lang" />
-                <label htmlFor="cat-lang">Ngôn ngữ</label>
-              </div>
-            </div>
-
-            <div className="filter-divider"></div>
-
-            <div className="filter-group">
-              <div className="filter-group-label">
-                <i className="fas fa-circle"></i> Giá
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="price-free" />
-                <label htmlFor="price-free">Miễn phí</label>
-              </div>
-            </div>
-
-            <div className="filter-divider"></div>
-
-            <div className="filter-group">
-              <div className="filter-group-label">
-                <i className="fas fa-circle"></i> Trình độ
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="lvl-basic" />
-                <label htmlFor="lvl-basic">Nền tảng</label>
-              </div>
-              <div className="filter-check">
-                <input type="checkbox" id="lvl-adv" />
-                <label htmlFor="lvl-adv">Chuyên sâu</label>
-              </div>
-            </div>
-
-            <button className="btn-filter-custom">
-              <i className="fas fa-search"></i> Lọc kết quả
-            </button>
+  return (
+    <div className="cl-page">
+      <div className="cl-page-inner">
+        {/* HERO */}
+        <div className="cl-hero">
+          <div className="cl-hero-badge">
+            <i className="fas fa-graduation-cap" />
+            Học viện FPTU
           </div>
-        </aside>
+          <h1 className="cl-hero-title">
+            Khám phá <em>khóa học</em>
+            <br />
+            dành cho bạn
+          </h1>
+          <p className="cl-hero-sub">
+            Tìm kiếm và lọc khóa học phù hợp với mục tiêu của bạn
+          </p>
+        </div>
 
-        {/* DANH SÁCH KHÓA HỌC */}
-        <main>
-          <div className="course-list">
-            {courses.length > 0 ? (
-              courses.map((course, index) => (
-                <Link
-                  to={`/course/${course.id}`}
-                  className="course-card-link"
-                  key={course.id}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="course-card">
-                    <div className="card-img-col">
-                      <img src={course.image} alt={course.title} />
-                    </div>
-                    <div className="card-info-col">
-                      <div>
-                        <span className="card-tag">Khóa học</span>
-                        <div className="card-title-text mt-1">
-                          {course.title}
-                        </div>
-                        <div className="card-short-desc mt-1">
-                          {course.short_describe}
-                        </div>
-                        <p className="card-desc mt-2">
-                          {course.describe_details}
-                        </p>
-                      </div>
-                      <div className="card-rating">
-                        <i className="fas fa-star"></i>
-                        <span>4.9</span>
-                        <span className="reviews">(120 đánh giá)</span>
-                      </div>
-                    </div>
+        <div className="cl-layout">
+          {/* BỘ LỌC */}
+          <aside className="cl-sidebar">
+            <div className="cl-filter">
+              <div className="cl-filter-head">
+                <i className="fas fa-sliders-h" />
+                <span>Bộ lọc</span>
+              </div>
 
-                    <div
-                      className="card-price-col"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      {course.price === 0 ? (
-                        <span className="price-free">Miễn phí</span>
-                      ) : (
-                        <div className="price-amount">
-                          {formatPrice(course.price)}
-                          <span className="currency">VNĐ</span>
-                        </div>
-                      )}
+              <div className="cl-filter-section">
+                <div className="cl-filter-label">Danh mục</div>
+                {["Kĩ thuật phần mềm", "Toán cao cấp", "Ngôn ngữ"].map(
+                  (cat) => (
+                    <label className="cl-check" key={cat}>
+                      <input type="checkbox" />
+                      <span>{cat}</span>
+                    </label>
+                  ),
+                )}
+              </div>
 
-                      <button
-                        className="btn-add-cart-list"
-                        title="Thêm vào giỏ"
-                        onClick={(e) => handleAddToCart(e, course.id)}
-                      >
-                        <i className="fas fa-cart-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="text-center text-muted mt-5">
-                Không tìm thấy khóa học nào.
+              <div className="cl-filter-divider" />
+
+              <div className="cl-filter-section">
+                <div className="cl-filter-label">Giá</div>
+                <label className="cl-check">
+                  <input type="checkbox" />
+                  <span>Miễn phí</span>
+                </label>
+              </div>
+
+              <div className="cl-filter-divider" />
+
+              <div className="cl-filter-section">
+                <div className="cl-filter-label">Trình độ</div>
+                {["Nền tảng", "Chuyên sâu"].map((lvl) => (
+                  <label className="cl-check" key={lvl}>
+                    <input type="checkbox" />
+                    <span>{lvl}</span>
+                  </label>
+                ))}
+              </div>
+
+              <button className="cl-filter-btn">
+                <i className="fas fa-search" />
+                Lọc kết quả
+              </button>
+            </div>
+          </aside>
+
+          {/* DANH SÁCH + PHÂN TRANG */}
+          <main>
+            {/* Kết quả info */}
+            {totalElements > 0 && (
+              <div className="cl-results-info">
+                Hiển thị <strong>{currentPage * PAGE_SIZE + 1}</strong>
+                {" – "}
+                <strong>
+                  {Math.min((currentPage + 1) * PAGE_SIZE, totalElements)}
+                </strong>{" "}
+                trong <strong>{totalElements}</strong> khóa học
               </div>
             )}
-          </div>
-        </main>
+
+            <div className="cl-list">
+              {courses.length > 0 ? (
+                courses.map((course, index) => (
+                  <Link
+                    to={`/course/${course.id}`}
+                    className="cl-card-link"
+                    key={course.id}
+                    style={{ animationDelay: `${index * 0.06}s` }}
+                  >
+                    <article className="cl-card">
+                      <div className="cl-card-img">
+                        <img
+                          src={
+                            course.image ||
+                            `https://placehold.co/210x168/0d1828/63b3ed?text=${encodeURIComponent(
+                              course.shortName || course.title,
+                            )}`
+                          }
+                          alt={course.title}
+                          loading="lazy"
+                        />
+                      </div>
+
+                      <div className="cl-card-info">
+                        <span className="cl-card-tag">Khóa học</span>
+                        <h2 className="cl-card-title">{course.title}</h2>
+                        <p className="cl-card-code">{course.shortName}</p>
+                        <p className="cl-card-desc">{course.description}</p>
+                        <div className="cl-card-rating">
+                          <i className="fas fa-star" />
+                          <strong>4.9</strong>
+                          <span>(120 đánh giá)</span>
+                        </div>
+                      </div>
+
+                      <div
+                        className="cl-card-price"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {course.price === 0 ? (
+                          <span className="cl-price-free">Miễn phí</span>
+                        ) : (
+                          <div className="cl-price-amount">
+                            <span className="cl-price-num">
+                              {formatPrice(course.price)}
+                            </span>
+                            <span className="cl-price-unit">VNĐ</span>
+                          </div>
+                        )}
+                        <button
+                          className="cl-btn-cart"
+                          title="Thêm vào giỏ"
+                          onClick={(e) => handleAddToCart(e, course.id)}
+                        >
+                          <i className="fas fa-cart-plus" />
+                        </button>
+                      </div>
+                    </article>
+                  </Link>
+                ))
+              ) : (
+                <div className="cl-empty">
+                  <i className="fas fa-graduation-cap" />
+                  <p>Không tìm thấy khóa học nào.</p>
+                </div>
+              )}
+            </div>
+
+            {/* PHÂN TRANG */}
+            {totalPages > 1 && (
+              <div className="cl-pagination">
+                <button
+                  className="cl-pg-btn cl-pg-arrow"
+                  onClick={() => goTo(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  title="Trang trước"
+                >
+                  <i className="fas fa-chevron-left" />
+                </button>
+
+                {buildPageNums().map((p, i) =>
+                  p === "..." ? (
+                    <span className="cl-pg-dots" key={`dots-${i}`}>
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`cl-pg-btn${p === currentPage ? " cl-pg-active" : ""}`}
+                      onClick={() => goTo(p)}
+                    >
+                      {p + 1}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  className="cl-pg-btn cl-pg-arrow"
+                  onClick={() => goTo(currentPage + 1)}
+                  disabled={currentPage === totalPages - 1}
+                  title="Trang sau"
+                >
+                  <i className="fas fa-chevron-right" />
+                </button>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
