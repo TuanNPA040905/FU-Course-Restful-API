@@ -43,7 +43,6 @@ public class HomepageController {
 
     @GetMapping("/client/courses")
     @ApiMessage("Get all courses")
-    @PreAuthorize("hasAuthority('COURSES_GET')")
     public ResponseEntity<ResultPaginationDTO> getAllCourses(
             @Filter Specification<Course> spec,
             Pageable pageable

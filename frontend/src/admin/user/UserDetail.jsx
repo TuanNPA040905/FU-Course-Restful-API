@@ -10,7 +10,7 @@ const UserDetail = () => {
   useEffect(() => {
     const fetchUserDetail = async () => {
       try {
-        const response = await axiosInstance.get(`/api/v1/users/${id}`);
+        const response = await axiosInstance.get(`/api/v1/admin/users/${id}`);
         setUser(response.data.data);
       } catch (error) {
         console.error("Lỗi khi tải chi tiết người dùng:", error);

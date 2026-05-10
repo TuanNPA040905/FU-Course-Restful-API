@@ -21,7 +21,7 @@ const CourseList = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get("/api/v1/courses", {
+      const response = await axiosInstance.get("/api/v1/admin/courses", {
         params: { page: page - 1, pageSize: PAGE_SIZE }, // trừ 1
       });
 

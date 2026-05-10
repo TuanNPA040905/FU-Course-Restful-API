@@ -20,7 +20,7 @@ const UserUpdate = () => {
   useEffect(() => {
     const fetchOldData = async () => {
       // ← Thêm async
-      const response = await axiosInstance.get(`/api/v1/users/${id}`);
+      const response = await axiosInstance.get(`/api/v1/admin/users/${id}`);
       const user = response.data.data;
       setFormData({
         email: user.email,

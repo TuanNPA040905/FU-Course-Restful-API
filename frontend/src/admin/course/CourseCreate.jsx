@@ -60,7 +60,7 @@ const CourseCreate = () => {
     }
 
     try {
-      await axiosInstance.post("/api/v1/courses", multipartData);
+      await axiosInstance.post("/api/v1/admin/courses", multipartData);
       alert("Tạo khóa học thành công!");
       navigate("/admin/course");
     } catch (error) {

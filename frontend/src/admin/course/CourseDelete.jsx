@@ -13,7 +13,7 @@ const CourseDelete = () => {
     setSubmitting(true);
 
     try {
-      await axiosInstance.delete(`/api/v1/courses/${id}`);
+      await axiosInstance.delete(`/api/v1/admin/courses/${id}`);
       alert("Xóa khóa học thành công!");
       navigate("/admin/course");
     } catch (error) {

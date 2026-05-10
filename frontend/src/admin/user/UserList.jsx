@@ -16,7 +16,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async (name = "") => {
       try {
-        const response = await axiosInstance.get("/api/v1/users", {
+        const response = await axiosInstance.get("/api/v1/admin/users", {
           params: { name: name || undefined },
         });
         setUsers(response.data.data.result); // Lấy từ result

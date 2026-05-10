@@ -24,7 +24,7 @@ const CourseUpdate = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await axiosInstance.get(`/api/v1/courses/${id}`);
+        const response = await axiosInstance.get(`/api/v1/admin/courses/${id}`);
         const json = response.data;
 
         if (json.statusCode === 200) {

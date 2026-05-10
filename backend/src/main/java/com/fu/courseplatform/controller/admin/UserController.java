@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/admin")
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;

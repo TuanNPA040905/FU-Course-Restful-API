@@ -52,7 +52,7 @@ const UserCreate = () => {
     }
 
     try {
-      await axiosInstance.post("/api/v1/users", multipartData); // ✅ Bỏ headers
+      await axiosInstance.post("/api/v1/admin/users", multipartData); // ✅ Bỏ headers
       alert("Tạo người dùng thành công!");
       navigate("/admin/user");
     } catch (error) {

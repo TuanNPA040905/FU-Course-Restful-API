@@ -13,7 +13,7 @@ const UserDelete = () => {
       // Tùy theo chuẩn REST của bạn, có thể là DELETE hoặc POST
       // await axios.delete(`http://localhost:8080/api/admin/users/${id}`);
 
-      await axiosInstance.delete(`/api/v1/users/${id}`);
+      await axiosInstance.delete(`/api/v1/admin/users/${id}`);
       alert("Xóa người dùng thành công!");
       navigate("/admin/user");
     } catch (error) {
