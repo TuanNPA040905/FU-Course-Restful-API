@@ -78,7 +78,8 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         authz -> authz
-                                .requestMatchers("/home",
+                                .requestMatchers("/api/v1/home",
+                                                            "/api/v1/client/**",
                                                             "/api/v1/auth/login",
                                                             "/api/v1/auth/logout",
                                                             "/api/v1/auth/register",
