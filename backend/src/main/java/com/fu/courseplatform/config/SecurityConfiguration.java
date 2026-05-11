@@ -80,7 +80,7 @@ public class SecurityConfiguration {
                         authz -> authz
                                 .requestMatchers("/api/v1/home",
                                                             "/api/v1/client/**",
-                                                            "/api/v1/auth/login",
+                                                            "/api/v1/auth/**",
                                                             "/api/v1/auth/logout",
                                                             "/api/v1/auth/register",
                                                             "/api/v1/auth/access-deny").permitAll()
@@ -127,7 +127,7 @@ public class SecurityConfiguration {
         config.setAllowedOrigins(List.of("http://localhost:5173")); // URL React
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // ✅ Bắt buộc để Cookie hoạt động
+        config.setAllowCredentials(true); // Bắt buộc để Cookie hoạt động
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

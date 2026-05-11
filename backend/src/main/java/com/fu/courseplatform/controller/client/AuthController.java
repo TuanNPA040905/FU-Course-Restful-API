@@ -1,12 +1,17 @@
 package com.fu.courseplatform.controller.client;
 
+import com.fu.courseplatform.domain.DTO.request.CreateUserRequestDTO;
 import com.fu.courseplatform.domain.DTO.request.LoginDTO;
+import com.fu.courseplatform.domain.DTO.request.UserClientCreate;
+import com.fu.courseplatform.domain.DTO.response.CreateUserDTO;
 import com.fu.courseplatform.domain.DTO.response.ResLoginDTO;
 import com.fu.courseplatform.domain.Permission;
 import com.fu.courseplatform.domain.User;
 import com.fu.courseplatform.repository.PermissionRepository;
 import com.fu.courseplatform.service.UserService;
 import com.fu.courseplatform.util.SecurityUtil;
+import com.fu.courseplatform.util.annotation.ApiMessage;
+import com.fu.courseplatform.util.error.EmailAlreadyExistException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -15,12 +20,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -33,12 +41,14 @@ public class AuthController {
     private final PermissionRepository permissionRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService,  PermissionRepository permissionRepository) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService,  PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
         this.permissionRepository = permissionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Value("${fucourse.jwt.refresh-token-validity-in-seconds}")
@@ -171,5 +181,24 @@ public class AuthController {
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("Registration an account")
+    public ResponseEntity<CreateUserDTO> handleCreateUser(
+            @RequestBody @Valid UserClientCreate userClientCreate) {
+        if(this.userService.checkExistsEmail(userClientCreate.getUsername())){
+            throw new EmailAlreadyExistException("Email already exist");
+        }
+        CreateUserRequestDTO uDTO = new CreateUserRequestDTO();
+        uDTO.setEmail(userClientCreate.getUsername());
+
+        String hashPassword = passwordEncoder.encode(userClientCreate.getPassword());
+        uDTO.setPassword(hashPassword);
+        String fullName = userClientCreate.getFirstName() + " " + userClientCreate.getLastName();
+        uDTO.setFullName(fullName);
+        uDTO.setActive(true);
+        CreateUserDTO cDTO = this.userService.handleCreateAccount(uDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cDTO);
     }
 }

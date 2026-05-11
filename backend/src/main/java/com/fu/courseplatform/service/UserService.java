@@ -61,6 +61,25 @@ public class UserService {
         return createUserDTO;
     }
 
+    public CreateUserDTO handleCreateAccount(CreateUserRequestDTO user) {
+        User user1 = new User();
+        user1.setEmail(user.getEmail());
+        user1.setPassword(user.getPassword());
+        user1.setFullName(user.getFullName());
+        user1.setActive(user.isActive());
+        user1.setRole(roleService.findByName("USER"));
+        User createUser = this.userRepository.save(user1);
+        CreateUserDTO cDTO = new CreateUserDTO();
+
+        cDTO.setEmail(createUser.getEmail());
+        cDTO.setFullName(createUser.getFullName());
+        CreateUserDTO.RoleDTO roleDTO = new CreateUserDTO.RoleDTO();
+        roleDTO.setId(createUser.getRole().getId());
+        roleDTO.setName(createUser.getRole().getName());
+        cDTO.setRole(roleDTO);
+        return cDTO;
+    }
+
     public CreateUserDTO handleUpdateUser(Long id, UpdateUserRequestDTO request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
