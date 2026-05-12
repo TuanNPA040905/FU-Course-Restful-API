@@ -33,6 +33,10 @@ import OrderDetail from "./admin/order/OrderDetail";
 import HomePage from "./client/homepage/HomePage";
 import Profile from "./client/profile/Profile";
 
+import Cart from "./client/cart/Cart";
+import Checkout from "./client/cart/Checkout";
+import PaymentResult from "./client/cart/PaymentResult";
+
 import Login from "./client/auth/Login";
 import Register from "./client/auth/Register";
 import AccessDenied from "./client/auth/AccessDenied";
@@ -46,6 +50,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/courses" element={<ClientCourseList />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/check-out" element={<Checkout />} />
+          <Route path="/payment-result" element={<PaymentResult />} />
         </Route>
 
         {/* 2. CÁC TRANG XÁC THỰC (Độc lập, không nằm trong Admin hay Client) */}
