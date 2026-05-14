@@ -42,13 +42,6 @@ public class HomepageController {
         return ResponseEntity.ok(homeCoursesResponse);
     }
 
-    @GetMapping("/client/courses")
-    @ApiMessage("Get all courses")
-    public ResponseEntity<ResultPaginationDTO> getAllCourses(
-            @Filter Specification<Course> spec,
-            Pageable pageable
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.courseService.fetchAllCourse(spec, pageable));
-    }
+
 
 }

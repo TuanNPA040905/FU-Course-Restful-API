@@ -174,7 +174,7 @@ const CourseList = () => {
               {courses.length > 0 ? (
                 courses.map((course, index) => (
                   <Link
-                    to={`/course/${course.id}`}
+                    to={`/courses/${course.id}`}
                     className="cl-card-link"
                     key={course.id}
                     style={{ animationDelay: `${index * 0.06}s` }}

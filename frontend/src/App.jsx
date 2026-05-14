@@ -10,6 +10,7 @@ import Dashboard from "./admin/dashboard";
 
 // Trên cùng App.jsx
 import ClientCourseList from "./client/course/CourseList";
+import ClientCourseDetail from "./client/course/CourseDetail";
 
 // Import các trang Course (Admin)
 import CourseList from "./admin/course/CourseList";
@@ -50,6 +51,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/courses" element={<ClientCourseList />} />
+          <Route path="/courses/:id" element={<ClientCourseDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/check-out" element={<Checkout />} />
           <Route path="/payment-result" element={<PaymentResult />} />
