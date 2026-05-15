@@ -42,6 +42,9 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @OneToOne
+    private Cart cart;
+
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
