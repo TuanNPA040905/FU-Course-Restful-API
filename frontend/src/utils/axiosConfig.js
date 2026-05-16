@@ -17,17 +17,21 @@ axiosInstance.interceptors.response.use(
     ) {
       localStorage.removeItem("user");
       window.location.href = "/login";
+
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
-        await axiosInstance.get("/api/v1/refresh"); // ← sửa path
+        await axiosInstance.get("/api/v1/refresh");
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem("user");
         window.location.href = "/login";
+
         return Promise.reject(refreshError);
       }
     }

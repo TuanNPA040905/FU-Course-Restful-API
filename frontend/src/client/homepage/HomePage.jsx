@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./HomePage.css";
+import axiosInstance from "../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 const HomePage = () => {
   const [hotCourses, setHotCourses] = useState([]);
@@ -11,12 +13,10 @@ const HomePage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("/api/v1/home");
-        if (!res.ok) throw new Error("Lỗi fetch");
-        const json = await res.json();
+        const res = await axiosInstance.get("/api/v1/home");
 
-        setHotCourses(json.data.hotCourse);
-        setFreeCourses(json.data.freeCourse);
+        setHotCourses(res.data.data.hotCourse);
+        setFreeCourses(res.data.data.freeCourse);
       } catch (err) {
         console.error("Lỗi tải khóa học:", err);
         setError("Không thể tải khóa học. Vui lòng thử lại.");
@@ -30,6 +30,20 @@ const HomePage = () => {
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN").format(price) + "đ";
+
+  const handleAddToCart = async (courseId) => {
+    try {
+      const res = await axiosInstance.post(
+        `/api/v1/add-course-to-cart/${courseId}`,
+      );
+
+      toast.success(res.data);
+    } catch (error) {
+      console.error(error);
+
+      toast.error(error.response?.data || "Có lỗi xảy ra vui lòng thử lại");
+    }
+  };
 
   if (loading)
     return (
@@ -69,17 +83,20 @@ const HomePage = () => {
                   data-bs-slide-to="0"
                   className="active"
                 ></button>
+
                 <button
                   type="button"
                   data-bs-target="#carouselExampleFade"
                   data-bs-slide-to="1"
                 ></button>
+
                 <button
                   type="button"
                   data-bs-target="#carouselExampleFade"
                   data-bs-slide-to="2"
                 ></button>
               </div>
+
               <div className="carousel-inner">
                 <div className="carousel-item active">
                   <img
@@ -87,12 +104,14 @@ const HomePage = () => {
                     alt="Slide 1"
                   />
                 </div>
+
                 <div className="carousel-item">
                   <img
                     src="https://res.cloudinary.com/dep1nnstf/image/upload/v1778231569/Carosel1_fpgsth.jpg"
                     alt="Slide 2"
                   />
                 </div>
+
                 <div className="carousel-item">
                   <img
                     src="https://res.cloudinary.com/dep1nnstf/image/upload/v1778231569/Carosel3_ncbhog.jpg"
@@ -100,6 +119,7 @@ const HomePage = () => {
                   />
                 </div>
               </div>
+
               <button
                 className="carousel-control-prev"
                 type="button"
@@ -108,6 +128,7 @@ const HomePage = () => {
               >
                 <span className="carousel-control-prev-icon"></span>
               </button>
+
               <button
                 className="carousel-control-next"
                 type="button"
@@ -130,10 +151,12 @@ const HomePage = () => {
               <div className="section-badge">
                 <span className="dot"></span> Nổi bật
               </div>
+
               <h2 className="section-title-text">
                 Khóa học <em>HOT</em>
               </h2>
             </div>
+
             <Link to="/courses" className="btn-see-all">
               Xem tất cả <i className="fas fa-arrow-right"></i>
             </Link>
@@ -151,15 +174,20 @@ const HomePage = () => {
                       <img
                         src={
                           course.image ||
-                          `https://placehold.co/400x250?text=${encodeURIComponent(course.shortName || course.title)}`
+                          `https://placehold.co/400x250?text=${encodeURIComponent(
+                            course.shortName || course.title,
+                          )}`
                         }
                         alt={course.title}
                       />
+
                       <div className="course-card-img-overlay"></div>
+
                       <span className="course-price-tag">
                         {formatPrice(course.price)}
                       </span>
                     </div>
+
                     <div className="course-card-body">
                       <Link
                         to={`/course/${course.id}`}
@@ -167,10 +195,15 @@ const HomePage = () => {
                       >
                         <div className="course-card-title">{course.title}</div>
                       </Link>
+
                       <p className="course-card-desc">{course.description}</p>
                     </div>
+
                     <div className="course-card-footer">
-                      <button className="btn-add-cart">
+                      <button
+                        className="btn-add-cart"
+                        onClick={() => handleAddToCart(course.id)}
+                      >
                         <i className="fa fa-shopping-bag"></i> Thêm vào giỏ
                       </button>
                     </div>
@@ -194,6 +227,7 @@ const HomePage = () => {
               <div className="section-badge free">
                 <span className="dot"></span> Miễn phí
               </div>
+
               <h2 className="section-title-text">
                 Khóa học <em style={{ color: "#6ee7b7" }}>miễn phí</em>
               </h2>
@@ -212,14 +246,20 @@ const HomePage = () => {
                       <img
                         src={
                           course.image ||
-                          `https://via.placeholder.com/400x250?text=${encodeURIComponent(course.shortName || course.title)}`
+                          `https://via.placeholder.com/400x250?text=${encodeURIComponent(
+                            course.shortName || course.title,
+                          )}`
                         }
                         alt={course.title}
                       />
+
                       <div className="course-card-img-overlay"></div>
+
                       <span className="free-badge">Miễn phí</span>
+
                       <span className="course-price-tag free-tag">0đ</span>
                     </div>
+
                     <div className="course-card-body">
                       <Link
                         to={`/course/${course.id}`}
@@ -227,11 +267,14 @@ const HomePage = () => {
                       >
                         <div className="course-card-title">{course.title}</div>
                       </Link>
+
                       <p className="course-card-desc">{course.description}</p>
                     </div>
+
                     <div className="course-card-footer">
                       <button
                         className="btn-add-cart"
+                        onClick={() => handleAddToCart(course.id)}
                         style={{
                           borderColor: "rgba(110,231,183,0.3)",
                           color: "#6ee7b7",

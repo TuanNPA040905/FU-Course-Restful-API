@@ -38,7 +38,7 @@ public class CartService {
             cart = newCart;
         }
         Course course = this.courseService.findById(id);
-        if(course == null) {
+        if(course != null) {
             Optional<CartDetail> oldDetail = this.cartDetailService.findByCartAndCourse(cart, course);
             if(!oldDetail.isPresent()) {
                 CartDetail cd = new CartDetail();
