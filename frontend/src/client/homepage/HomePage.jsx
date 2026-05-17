@@ -37,11 +37,15 @@ const HomePage = () => {
         `/api/v1/add-course-to-cart/${courseId}`,
       );
 
-      toast.success(res.data);
+      toast.success(res.data.data.message);
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data || "Có lỗi xảy ra vui lòng thử lại");
+      toast.error(
+        error.response?.data?.data?.message ||
+          error.response?.data?.message ||
+          "Có lỗi xảy ra",
+      );
     }
   };
 

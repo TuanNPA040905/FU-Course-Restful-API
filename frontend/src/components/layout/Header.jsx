@@ -1,7 +1,30 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Dùng Link thay cho thẻ <a>
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosConfig";
+import { toast } from "react-toastify";
 
 const Header = ({ fullName = "Admin" }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    console.log("LOGOUT CLICKED");
+
+    try {
+      await axiosInstance.post("/api/v1/auth/logout");
+
+      console.log("API LOGOUT SUCCESS");
+
+      localStorage.clear();
+
+      toast.success("Đăng xuất thành công");
+
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Đăng xuất thất bại");
+    }
+  };
   return (
     <nav className="sb-topnav navbar navbar-expand navbar-dark bg-dark">
       <Link className="navbar-brand ps-3" to="/admin">
@@ -47,8 +70,12 @@ const Header = ({ fullName = "Admin" }) => {
             </li>
             <li>
               <button
+                type="button"
                 className="dropdown-item"
-                onClick={() => console.log("Xử lý đăng xuất ở đây")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLogout();
+                }}
               >
                 Logout
               </button>

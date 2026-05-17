@@ -1,5 +1,6 @@
 package com.fu.courseplatform.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import com.fu.courseplatform.util.SecurityUtil;
@@ -43,6 +44,7 @@ public class User {
     private Role role;
 
     @OneToOne
+    @JsonIgnore
     private Cart cart;
 
     @PrePersist

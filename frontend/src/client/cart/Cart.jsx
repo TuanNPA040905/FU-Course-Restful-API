@@ -1,62 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosConfig";
 import "./Cart.css";
 
 const Cart = () => {
   const navigate = useNavigate();
 
-  // Dữ liệu giả lập (thay thế cho biến ${cartDetails} từ JSP)
-  // Bạn sẽ thay thế bằng state gọi từ API backend sau này
-  const [cartDetails, setCartDetails] = useState([
-    {
-      id: 1,
-      course: {
-        id: 101,
-        title: "ReactJS Thực Chiến",
-        short_describe: "Khóa học từ cơ bản đến nâng cao",
-        price: 1500000,
-        image: "https://via.placeholder.com/100", // Link ảnh tạm
-      },
-    },
-    {
-      id: 2,
-      course: {
-        id: 102,
-        title: "Spring Boot Căn Bản",
-        short_describe: "Xây dựng backend mạnh mẽ với Java",
-        price: 1200000,
-        image: "https://via.placeholder.com/100",
-      },
-    },
-  ]);
+  const [cartDetails, setCartDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Các biến tính toán (thay thế cho ${count} và ${totalPrice})
-  const count = cartDetails.length;
-  const totalPrice = cartDetails.reduce(
-    (sum, item) => sum + item.course.price,
-    0,
-  );
+  // Load cart từ API
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
-  // Xử lý xóa khóa học
-  const handleDelete = (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa khóa học này?")) {
-      // Logic xóa: Lọc ra các item khác với id bị xóa
-      setCartDetails(cartDetails.filter((item) => item.id !== id));
-      // Sau này bạn sẽ gọi API ở đây: axios.delete(`/api/favorite-course/${id}`)
+  const fetchCart = async () => {
+    try {
+      const response = await axiosInstance.get("/api/v1/cart");
+
+      console.log("CART DATA:", response.data);
+
+      setCartDetails(response.data.data || []);
+    } catch (error) {
+      console.error("Lỗi lấy cart:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Xử lý chuyển hướng đến trang thanh toán
+  // Tổng số khóa học
+  const count = cartDetails.length;
+
+  // Tổng tiền
+  const totalPrice = cartDetails.reduce((sum, item) => sum + item.price, 0);
+
+  // Xóa khóa học khỏi cart
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Bạn có chắc muốn xóa khóa học này?");
+
+    if (!confirmDelete) return;
+
+    try {
+      // API delete sau này
+      // await axiosInstance.delete(`/api/v1/cart/${id}`);
+
+      // Fake delete frontend
+      setCartDetails((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Checkout
   const handleCheckout = () => {
     navigate("/check-out");
   };
 
+  if (loading) {
+    return (
+      <div
+        className="container"
+        style={{
+          marginTop: "120px",
+          textAlign: "center",
+          color: "white",
+        }}
+      >
+        <h3>Đang tải giỏ hàng...</h3>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
-      {/* Page Header */}
+      {/* Header */}
       <div className="page-header" style={{ marginTop: "100px" }}>
-        <h1>💖 Khóa Học Yêu Thích</h1>
-        <p>Danh sách các khóa học bạn quan tâm</p>
+        <h1>🛒 Giỏ Hàng</h1>
+        <p>Danh sách khóa học bạn muốn mua</p>
       </div>
 
       {/* Breadcrumb */}
@@ -66,51 +86,49 @@ const Cart = () => {
             <i className="fas fa-home"></i> Trang chủ
           </Link>
           <span>/</span>
-          <span className="active">Khóa học quan tâm</span>
+          <span className="active">Giỏ hàng</span>
         </nav>
       </div>
 
-      {/* Hiển thị Empty State nếu giỏ hàng trống */}
+      {/* Empty cart */}
       {cartDetails.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">
-            <i className="fas fa-heart-broken"></i>
+            <i className="fas fa-shopping-cart"></i>
           </div>
-          <h2>Chưa có khóa học yêu thích</h2>
-          <p>
-            Hãy khám phá và thêm các khóa học bạn quan tâm vào danh sách này
-          </p>
+
+          <h2>Giỏ hàng đang trống</h2>
+
+          <p>Hãy thêm các khóa học yêu thích vào giỏ hàng</p>
+
           <Link to="/courses" className="btn-explore">
             <i className="fas fa-compass"></i> Khám phá khóa học
           </Link>
         </div>
       ) : (
-        /* Hiển thị Bảng khóa học nếu có dữ liệu */
         <>
+          {/* Table */}
           <div className="table-responsive">
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col" style={{ color: "white" }}>
-                    Sản phẩm
-                  </th>
-                  <th scope="col" style={{ color: "white" }}>
-                    Tên
-                  </th>
-                  <th scope="col" style={{ color: "white" }}>
-                    Giá cả
-                  </th>
-                  <th scope="col" style={{ color: "white" }}>
-                    Xử lý
-                  </th>
+                  <th style={{ color: "white" }}>Sản phẩm</th>
+
+                  <th style={{ color: "white" }}>Tên khóa học</th>
+
+                  <th style={{ color: "white" }}>Giá</th>
+
+                  <th style={{ color: "white" }}>Xử lý</th>
                 </tr>
               </thead>
+
               <tbody>
                 {cartDetails.map((cartDetail) => (
                   <tr key={cartDetail.id}>
-                    <th scope="row" className="info-buy">
+                    {/* IMAGE */}
+                    <td className="info-buy">
                       <Link
-                        to={`/course/${cartDetail.course.id}`}
+                        to={`/courses/${cartDetail.course.id}`}
                         target="_blank"
                       >
                         <img
@@ -124,27 +142,41 @@ const Cart = () => {
                           }}
                         />
                       </Link>
-                    </th>
+                    </td>
+
+                    {/* TITLE */}
                     <td>
                       <p className="mb-0 mt-4 course_detail">
                         <Link
-                          to={`/course/${cartDetail.course.id}`}
+                          to={`/courses/${cartDetail.course.id}`}
                           target="_blank"
-                          style={{ color: "white", textDecoration: "none" }}
+                          style={{
+                            color: "white",
+                            textDecoration: "none",
+                          }}
                         >
-                          {cartDetail.course.title} -{" "}
-                          {cartDetail.course.short_describe}
+                          {cartDetail.course.title}
+                          {" - "}
+                          {cartDetail.course.shortName}
                         </Link>
                       </p>
                     </td>
+
+                    {/* PRICE */}
                     <td>
                       <p
                         className="mb-0 mt-4"
-                        style={{ color: "#4CAF50", fontSize: "large" }}
+                        style={{
+                          color: "#4CAF50",
+                          fontSize: "large",
+                          fontWeight: "bold",
+                        }}
                       >
-                        {cartDetail.course.price.toLocaleString("vi-VN")} đ
+                        {cartDetail.price.toLocaleString("vi-VN")} đ
                       </p>
                     </td>
+
+                    {/* DELETE */}
                     <td>
                       <button
                         className="btn btn-md rounded-circle bg-light border mt-4"
@@ -159,7 +191,7 @@ const Cart = () => {
             </table>
           </div>
 
-          {/* Phần Payment Summary */}
+          {/* Payment Section */}
           <div className="payment-section">
             <div className="payment-container">
               <div className="payment-card">
@@ -168,13 +200,14 @@ const Cart = () => {
                   <h2>💳 Thông Tin Thanh Toán</h2>
                 </div>
 
-                {/* Payment Info */}
+                {/* Info */}
                 <div className="payment-info">
                   <div className="info-row">
                     <span className="info-label">
                       <i className="fas fa-book"></i>
                       Tổng số khóa học
                     </span>
+
                     <span className="info-value">{count}</span>
                   </div>
 
@@ -183,6 +216,7 @@ const Cart = () => {
                       <i className="fas fa-tag"></i>
                       Tổng giá trị
                     </span>
+
                     <span className="info-value highlight">
                       {totalPrice.toLocaleString("vi-VN")} đ
                     </span>
@@ -193,15 +227,16 @@ const Cart = () => {
                 <div className="payment-total">
                   <div className="total-row">
                     <span className="total-label">Tổng thanh toán:</span>
+
                     <span className="total-value">
                       {totalPrice.toLocaleString("vi-VN")} đ
                     </span>
                   </div>
                 </div>
 
-                {/* Checkout Button */}
+                {/* Checkout */}
                 <button className="btn-payment" onClick={handleCheckout}>
-                  <i className="fas fa-shopping-cart"></i>
+                  <i className="fas fa-credit-card"></i>
                   Xác nhận thanh toán
                 </button>
 

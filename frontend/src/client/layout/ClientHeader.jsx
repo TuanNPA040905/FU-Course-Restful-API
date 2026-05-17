@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosConfig";
 import "./ClientLayout.css";
+import { toast } from "react-toastify";
 
 const ClientHeader = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -28,10 +29,24 @@ const ClientHeader = () => {
     navigate(`/courses?name=${searchTerm}`);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/login");
+  const handleLogout = async () => {
+    console.log("LOGOUT CLICKED");
+
+    try {
+      await axiosInstance.post("/api/v1/auth/logout");
+
+      console.log("API LOGOUT SUCCESS");
+
+      localStorage.clear();
+
+      toast.success("Đăng xuất thành công");
+
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Đăng xuất thất bại");
+    }
   };
 
   return (

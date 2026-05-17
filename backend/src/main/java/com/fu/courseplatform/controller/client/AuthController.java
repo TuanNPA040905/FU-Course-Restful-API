@@ -5,6 +5,7 @@ import com.fu.courseplatform.domain.DTO.request.LoginDTO;
 import com.fu.courseplatform.domain.DTO.request.UserClientCreate;
 import com.fu.courseplatform.domain.DTO.response.CreateUserDTO;
 import com.fu.courseplatform.domain.DTO.response.ResLoginDTO;
+import com.fu.courseplatform.domain.DTO.response.ResultPaginationDTO;
 import com.fu.courseplatform.domain.Permission;
 import com.fu.courseplatform.domain.User;
 import com.fu.courseplatform.repository.PermissionRepository;
@@ -153,7 +154,7 @@ public class AuthController {
         res.setUser(resLogin);
         String newAccessToken = this.securityUtil.createAccessToken(email, res);
         res.setAccessToken(newAccessToken);
-        // 6. ✅ Set Cookie access_token mới
+        // 6. Set Cookie access_token mới
         ResponseCookie accessCookie = ResponseCookie
                 .from("access_token", newAccessToken)
                 .httpOnly(true)
@@ -169,18 +170,26 @@ public class AuthController {
 
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refresh_token", null);
-        cookie.setMaxAge(0);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        System.out.println("===== LOGOUT API CALLED =====");
+        ResponseCookie refreshCookie = ResponseCookie
+                .from("refresh_token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
 
-        Cookie accessCookie = new Cookie("access_token", null);
-        accessCookie.setMaxAge(0);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setPath("/");
-        response.addCookie(accessCookie);
-        return ResponseEntity.ok().build();
+        ResponseCookie accessCookie = ResponseCookie
+                .from("access_token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .build();
     }
 
     @PostMapping("/auth/register")
@@ -201,4 +210,6 @@ public class AuthController {
         CreateUserDTO cDTO = this.userService.handleCreateAccount(uDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(cDTO);
     }
+
+
 }

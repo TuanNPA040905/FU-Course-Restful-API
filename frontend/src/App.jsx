@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // Import Layouts
 import AdminLayout from "./components/layout/AdminLayout";
 import ClientLayout from "./client/layout/ClientLayout"; // Layout mới cho Client
@@ -88,6 +89,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
     </BrowserRouter>
   );
 }

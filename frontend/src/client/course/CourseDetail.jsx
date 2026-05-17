@@ -36,19 +36,21 @@ const CourseDetail = () => {
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price);
 
-  const handleAddToCart = async (e) => {
-    e.preventDefault();
-
+  const handleAddToCart = async (courseId) => {
     try {
       const res = await axiosInstance.post(
-        `/api/v1/add-course-to-cart/${course.id}`,
+        `/api/v1/add-course-to-cart/${courseId}`,
       );
 
-      toast.success(res.data);
+      toast.success(res.data.data.message);
     } catch (error) {
       console.error(error);
 
-      toast.error(error.response?.data || "Có lỗi xảy ra vui lòng thử lại");
+      toast.error(
+        error.response?.data?.data?.message ||
+          error.response?.data?.message ||
+          "Có lỗi xảy ra",
+      );
     }
   };
 
@@ -155,7 +157,10 @@ const CourseDetail = () => {
                 </div>
               </div>
 
-              <button className="cd-btn-cart" onClick={handleAddToCart}>
+              <button
+                className="btn-add-cart"
+                onClick={() => handleAddToCart(course.id)}
+              >
                 <i className="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
               </button>
             </div>
